@@ -19,9 +19,17 @@ function App() {
         <a href="${task.url}" target="_blank">${task.title}</a>
         <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
         <button class="edit-task">Edit</button>
-        <button class="delete-task" onClick={() => handleDeleteTask(task.id)}>Delete</button>
+        <button class="delete-task" data-task-id="${task.id}">Delete</button>
       `;
       taskList.appendChild(taskElement);
+    });
+
+    const deleteButtons = document.querySelectorAll('.delete-task');
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const taskId = button.getAttribute('data-task-id');
+        handleDeleteTask(taskId);
+      });
     });
   }, [tasks]);
 
@@ -46,14 +54,22 @@ function App() {
         <a href="${task.url}" target="_blank">${task.title}</a>
         <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
         <button class="edit-task">Edit</button>
-        <button class="delete-task" onClick={() => handleDeleteTask(task.id)}>Delete</button>
+        <button class="delete-task" data-task-id="${task.id}">Delete</button>
       `;
       taskList.appendChild(taskElement);
+    });
+
+    const deleteButtons = document.querySelectorAll('.delete-task');
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const taskId = button.getAttribute('data-task-id');
+        handleDeleteTask(taskId);
+      });
     });
   };
 
   const handleDeleteTask = (taskId) => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
+    setTasks(tasks.filter((task) => task.id !== parseInt(taskId)));
   };
 
   return (
