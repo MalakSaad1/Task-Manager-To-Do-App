@@ -90,19 +90,17 @@ function App() {
     });
   };
 
-  const handleEditTask = (taskId) => {
-    setEditingTaskId(taskId);
-    const task = tasks.find((task) => task.id === taskId);
-    setEditedTaskTitle(task.title);
-  };
-
+   
   const handleSaveTask = (taskId) => {
-    const task = tasks.find((task) => task.id === taskId);
-    task.title = editedTaskTitle;
-    setTasks([...tasks]);
+    const updatedTasks = tasks.map((task) => {
+      if (task.id === taskId) {
+        task.title = editedTaskTitle;
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
     setEditingTaskId(null);
   };
-
   const handleDeleteTask = (taskId) => {
     setTasks(tasks.filter((task) => task.id !== parseInt(taskId)));
   };
