@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 function App() {
   const [tasks, setTasks] = useState([
-    { id: 1, title: 'Scary 2 Animals', completed: false, url: 'https://www.deepseaworld.com/blog/scary-animals-myths-debunked/' },
+    { id: 1, title: 'Scary Animals', completed: false, url: 'https://www.deepseaworld.com/blog/scary-animals-myths-debunked/' },
     { id: 2, title: 'Must-Know Pufferfish Facts', completed: false, url: 'https://www.deepseaworld.com/animal-behaviour/must-know-pufferfish-facts/' },
     { id: 3, title: 'Meet the Sand Tiger Shark', completed: false, url: 'https://www.deepseaworld.com/shark/meet-the-sand-tiger-shark/' },
   ]);
@@ -109,8 +109,7 @@ function App() {
       <input id="task-input" type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder ="Add a new task..." />
       <button id="add-task-btn" onClick={handleAddTask}>Add Task</button>
       <div id="task-filters">
-        <button id="all-tasks-btn" onClick={() => handleTaskFilter('all')}>All Tasks</button>
-        <button id="active-tasks-btn" onClick={() => handleTaskFilter('active')}>Active Tasks</button>
+       
         <button id="completed-tasks-btn" onClick={() => handleTaskFilter('completed')}>Completed Tasks</button>
       </div>
       {editingTaskId && (
