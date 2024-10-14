@@ -19,7 +19,7 @@ function App() {
         <a href="${task.url}" target="_blank">${task.title}</a>
         <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
         <button class="edit-task">Edit</button>
-        <button class="delete-task">Delete</button>
+        <button class="delete-task" onClick={() => handleDeleteTask(task.id)}>Delete</button>
       `;
       taskList.appendChild(taskElement);
     });
@@ -46,10 +46,14 @@ function App() {
         <a href="${task.url}" target="_blank">${task.title}</a>
         <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
         <button class="edit-task">Edit</button>
-        <button class="delete-task">Delete</button>
+        <button class="delete-task" onClick={() => handleDeleteTask(task.id)}>Delete</button>
       `;
       taskList.appendChild(taskElement);
     });
+  };
+
+  const handleDeleteTask = (taskId) => {
+    setTasks(tasks.filter((task) => task.id !== taskId));
   };
 
   return (
@@ -67,4 +71,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
