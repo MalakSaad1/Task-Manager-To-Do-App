@@ -9,29 +9,63 @@ function App() {
   ]);
 
   const [newTask, setNewTask] = useState('');
+  const [editingTask, setEditingTask] = useState(null);
+  const [editedTask, setEditedTask] = useState('');
 
   useEffect(() => {
     const taskList = document.getElementById('task-list');
     taskList.innerHTML = '';
     tasks.forEach((task) => {
       const taskElement = document.createElement('li');
-      taskElement.innerHTML = `
-        <a href="${task.url}" target="_blank">${task.title}</a>
-        <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
-        <button class="edit-task">Edit</button>
-        <button class="delete-task" data-task-id="${task.id}">Delete</button>
-      `;
+      if (editingTask === task.id) {
+        taskElement.innerHTML = `
+          <input type="text" value="${editedTask}" onChange={(e) => setEditedTask(e.target.value)}>
+          <button class="save-task" data-task-id="${task.id}">Save</button>
+          <button class="cancel-task" data-task-id="${task.id}">Cancel</button>
+        `;
+      } else {
+        taskElement.innerHTML = `
+          <a href="${task.url}" target="_blank">${task.title}</a>
+          <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
+          <button class="edit-task" data-task-id="${task.id}">Edit</button>
+          <button class="delete-task" data-task-id="${task.id}">Delete</button>
+        `;
+      }
       taskList.appendChild(taskElement);
     });
 
     const deleteButtons = document.querySelectorAll('.delete-task');
     deleteButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const taskId = button.getAttribute('data-task-id');
+      button.addEventListener('click', (e) => {
+        const taskId = e.target.getAttribute('data-task-id');
         handleDeleteTask(taskId);
       });
     });
-  }, [tasks]);
+
+    const editButtons = document.querySelectorAll('.edit-task');
+    editButtons.forEach((button) => {
+      button.addEventListener('click', (e) => {
+        const taskId = e.target.getAttribute('data-task-id');
+        handleEditTask(taskId);
+      });
+    });
+
+    const saveButtons = document.querySelectorAll('.save-task');
+    saveButtons.forEach((button) => {
+      button.addEventListener('click', (e) => {
+        const taskId = e.target.getAttribute('data-task-id');
+        handleSaveTask(taskId);
+      });
+    });
+
+    const cancelButtons = document.querySelectorAll('.cancel-task');
+    cancelButtons.forEach((button) => {
+      button.addEventListener('click', (e) => {
+        const taskId = e.target.getAttribute('data-task-id');
+        handleCancelTask(taskId);
+      });
+    });
+  }, [tasks, editingTask, editedTask]);
 
   const handleAddTask = () => {
     if (newTask.trim() !== '') {
@@ -50,41 +84,21 @@ function App() {
     taskList.innerHTML = '';
     filteredTasks.forEach((task) => {
       const taskElement = document.createElement('li');
-      taskElement.innerHTML = `
-        <a href="${task.url}" target="_blank">${task.title}</a>
-        <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
-        <button class="edit-task">Edit</button>
-        <button class="delete-task" data-task-id="${task.id}">Delete</button>
-      `;
+      if (editingTask === task.id) {
+        taskElement.innerHTML = `
+          <input type="text" value="${editedTask}" onChange={(e) => setEditedTask(e.target.value)}>
+          <button class="save-task" data-task-id="${task.id}">Save</button>
+          <button class="cancel-task" data-task-id="${task.id}">Cancel</button>
+        `;
+      } else {
+        taskElement.innerHTML = `
+          <a href="${task.url}" target="_blank">${task.title}</a>
+          <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
+          <button class="edit-task" data-task-id="${task.id}">Edit</button>
+          <button class="delete-task" data-task-id="${task.id}">Delete</button>
+        `;
+      }
       taskList.appendChild(taskElement);
     });
 
-    const deleteButtons = document.querySelectorAll('.delete-task');
-    deleteButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const taskId = button.getAttribute('data-task-id');
-        handleDeleteTask(taskId);
-      });
-    });
-  };
-
-  const handleDeleteTask = (taskId) => {
-    setTasks(tasks.filter((task) => task.id !== parseInt(taskId)));
-  };
-
-  return (
-    <div>
-      <h2>Tasks:</h2>
-      <ul id="task-list"></ul>
-      <input id="task-input" type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="Add a new task..." />
-      <button id="add-task-btn" onClick={handleAddTask}>Add Task</button>
-      <div id="task-filters">
-        <button id="all-tasks-btn" onClick={() => handleTaskFilter('all')}>All Tasks</button>
-        <button id="active-tasks-btn" onClick={() => handleTaskFilter('active')}>Active Tasks</button>
-        <button id="completed-tasks-btn" onClick={() => handleTaskFilter('completed')}>Completed Tasks</button>
-      </div>
-    </div>
-  );
-}
-
-export default App;
+    const deleteButtons =
