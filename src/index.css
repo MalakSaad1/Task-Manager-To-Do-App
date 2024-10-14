@@ -10,7 +10,7 @@ body {
   font-family: Arial, sans-serif;
   line-height: 1.6;
   color: #c58bff;
-  background-color: #000000;
+  background-color: #ffffff;
 }
 
 header {
@@ -55,7 +55,7 @@ h1 {
 }
 
 #task-list a:hover {
-  color: #000000;
+  color: #ffffff;
 }
 
 input[type="checkbox"] {
