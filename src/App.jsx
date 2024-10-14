@@ -9,63 +9,8 @@ function App() {
   ]);
 
   const [newTask, setNewTask] = useState('');
-  const [editingTask, setEditingTask] = useState(null);
+  const [editingTaskId, setEditingTaskId] = useState(null);
   const [editedTask, setEditedTask] = useState('');
-
-  useEffect(() => {
-    const taskList = document.getElementById('task-list');
-    taskList.innerHTML = '';
-    tasks.forEach((task) => {
-      const taskElement = document.createElement('li');
-      if (editingTask === task.id) {
-        taskElement.innerHTML = `
-          <input type="text" value="${editedTask}" onChange={(e) => setEditedTask(e.target.value)}>
-          <button class="save-task" data-task-id="${task.id}">Save</button>
-          <button class="cancel-task" data-task-id="${task.id}">Cancel</button>
-        `;
-      } else {
-        taskElement.innerHTML = `
-          <a href="${task.url}" target="_blank">${task.title}</a>
-          <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
-          <button class="edit-task" data-task-id="${task.id}">Edit</button>
-          <button class="delete-task" data-task-id="${task.id}">Delete</button>
-        `;
-      }
-      taskList.appendChild(taskElement);
-    });
-
-    const deleteButtons = document.querySelectorAll('.delete-task');
-    deleteButtons.forEach((button) => {
-      button.addEventListener('click', (e) => {
-        const taskId = e.target.getAttribute('data-task-id');
-        handleDeleteTask(taskId);
-      });
-    });
-
-    const editButtons = document.querySelectorAll('.edit-task');
-    editButtons.forEach((button) => {
-      button.addEventListener('click', (e) => {
-        const taskId = e.target.getAttribute('data-task-id');
-        handleEditTask(taskId);
-      });
-    });
-
-    const saveButtons = document.querySelectorAll('.save-task');
-    saveButtons.forEach((button) => {
-      button.addEventListener('click', (e) => {
-        const taskId = e.target.getAttribute('data-task-id');
-        handleSaveTask(taskId);
-      });
-    });
-
-    const cancelButtons = document.querySelectorAll('.cancel-task');
-    cancelButtons.forEach((button) => {
-      button.addEventListener('click', (e) => {
-        const taskId = e.target.getAttribute('data-task-id');
-        handleCancelTask(taskId);
-      });
-    });
-  }, [tasks, editingTask, editedTask]);
 
   const handleAddTask = () => {
     if (newTask.trim() !== '') {
@@ -74,31 +19,65 @@ function App() {
     }
   };
 
-  const handleTaskFilter = (filterType) => {
-    const filteredTasks = tasks.filter((task) => {
-      if (filterType === 'all') return true;
-      if (filterType === 'active') return !task.completed;
-      if (filterType === 'completed') return task.completed;
-    });
-    const taskList = document.getElementById('task-list');
-    taskList.innerHTML = '';
-    filteredTasks.forEach((task) => {
-      const taskElement = document.createElement('li');
-      if (editingTask === task.id) {
-        taskElement.innerHTML = `
-          <input type="text" value="${editedTask}" onChange={(e) => setEditedTask(e.target.value)}>
-          <button class="save-task" data-task-id="${task.id}">Save</button>
-          <button class="cancel-task" data-task-id="${task.id}">Cancel</button>
-        `;
-      } else {
-        taskElement.innerHTML = `
-          <a href="${task.url}" target="_blank">${task.title}</a>
-          <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
-          <button class="edit-task" data-task-id="${task.id}">Edit</button>
-          <button class="delete-task" data-task-id="${task.id}">Delete</button>
-        `;
-      }
-      taskList.appendChild(taskElement);
-    });
+  const handleEditTask = (taskId) => {
+    const taskToEdit = tasks.find(task => task.id === taskId);
+    setEditingTaskId(taskId);
+    setEditedTask(taskToEdit.title);
+  };
 
-    const deleteButtons =
+  const handleSaveTask = (taskId) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId ? { ...task, title: editedTask } : task
+    ));
+    setEditingTaskId(null);
+    setEditedTask('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTaskId(null);
+    setEditedTask('');
+  };
+
+  const handleDeleteTask = (taskId) => {
+    setTasks(tasks.filter(task => task.id !== taskId));
+  };
+
+  return (
+    <div>
+      <h2>Tasks:</h2>
+      <ul id="task-list">
+        {tasks.map((task) => (
+          <li key={task.id}>
+            {editingTaskId === task.id ? (
+              <>
+                <input 
+                  type="text" 
+                  value={editedTask} 
+                  onChange={(e) => setEditedTask(e.target.value)} 
+                />
+                <button onClick={() => handleSaveTask(task.id)}>Save</button>
+                <button onClick={handleCancelEdit}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <a href={task.url} target="_blank" rel="noopener noreferrer">{task.title}</a>
+                <input type="checkbox" id={`task-${task.id}`} checked={task.completed} readOnly />
+                <button onClick={() => handleEditTask(task.id)}>Edit</button>
+                <button onClick={() => handleDeleteTask(task.id)}>Delete</button>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+      <input 
+        type="text" 
+        value={newTask} 
+        onChange={(e) => setNewTask(e.target.value)} 
+        placeholder="Add a new task..." 
+      />
+      <button onClick={handleAddTask}>Add Task</button>
+    </div>
+  );
+}
+
+export default App;
