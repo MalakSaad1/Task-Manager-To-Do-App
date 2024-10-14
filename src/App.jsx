@@ -10,7 +10,40 @@ function App() {
 
   const [newTask, setNewTask] = useState('');
   const [editingTaskId, setEditingTaskId] = useState(null);
-  const [editedTask, setEditedTask] = useState('');
+  const [editedTaskTitle, setEditedTaskTitle] = useState('');
+
+  useEffect(() => {
+    const taskList = document.getElementById('task-list');
+    taskList.innerHTML = '';
+    tasks.forEach((task) => {
+      const taskElement = document.createElement('li');
+      taskElement.innerHTML = `
+        <a href="${task.url}" target="_blank">${task.title}</a>
+        ${editingTaskId === task.id ? (
+          <input
+            type="text"
+            value={editedTaskTitle}
+            onChange={(e) => setEditedTaskTitle(e.target.value)}
+            placeholder="Edit task..."
+          />
+        ) : (
+          <span>${task.title}</span>
+        )}
+        <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
+        <button class="edit-task" onClick={() => handleEditTask(task.id)}>Edit</button>
+        <button class="delete-task" data-task-id="${task.id}">Delete</button>
+      `;
+      taskList.appendChild(taskElement);
+    });
+
+    const deleteButtons = document.querySelectorAll('.delete-task');
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const taskId = button.getAttribute('data-task-id');
+        handleDeleteTask(taskId);
+      });
+    });
+  }, [tasks, editingTaskId, editedTaskTitle]);
 
   const handleAddTask = () => {
     if (newTask.trim() !== '') {
@@ -19,63 +52,75 @@ function App() {
     }
   };
 
+  const handleTaskFilter = (filterType) => {
+    const filteredTasks = tasks.filter((task) => {
+      if (filterType === 'all') return true;
+      if (filterType === 'active') return !task.completed;
+      if (filterType === 'completed') return task.completed;
+    });
+    const taskList = document.getElementById('task-list');
+    taskList.innerHTML = '';
+    filteredTasks.forEach((task) => {
+      const taskElement = document.createElement('li');
+      taskElement.innerHTML = `
+        <a href="${task.url}" target="_blank">${task.title}</a>
+        ${editingTaskId === task.id ? (
+          <input
+            type="text"
+            value={editedTaskTitle}
+            onChange={(e) => setEditedTaskTitle(e.target.value)}
+            placeholder="Edit task..."
+          />
+        ) : (
+          <span>${task.title}</span>
+        )}
+        <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
+        <button class="edit-task" onClick={() => handleEditTask(task.id)}>Edit</button>
+        <button class="delete-task" data-task-id="${task.id}">Delete</button>
+      `;
+      taskList.appendChild(taskElement);
+    });
+
+    const deleteButtons = document.querySelectorAll('.delete-task');
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const taskId = button.getAttribute('data-task-id');
+        handleDeleteTask(taskId);
+      });
+    });
+  };
+
   const handleEditTask = (taskId) => {
-    const taskToEdit = tasks.find(task => task.id === taskId);
     setEditingTaskId(taskId);
-    setEditedTask(taskToEdit.title);
+    const task = tasks.find((task) => task.id === taskId);
+    setEditedTaskTitle(task.title);
   };
 
   const handleSaveTask = (taskId) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, title: editedTask } : task
-    ));
+    const task = tasks.find((task) => task.id === taskId);
+    task.title = editedTaskTitle;
+    setTasks([...tasks]);
     setEditingTaskId(null);
-    setEditedTask('');
-  };
-
-  const handleCancelEdit = () => {
-    setEditingTaskId(null);
-    setEditedTask('');
   };
 
   const handleDeleteTask = (taskId) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+    setTasks(tasks.filter((task) => task.id !== parseInt(taskId)));
   };
 
   return (
     <div>
       <h2>Tasks:</h2>
-      <ul id="task-list">
-        {tasks.map((task) => (
-          <li key={task.id}>
-            {editingTaskId === task.id ? (
-              <>
-                <input 
-                  type="text" 
-                  value={editedTask} 
-                  onChange={(e) => setEditedTask(e.target.value)} 
-                />
-                <button onClick={() => handleSaveTask(task.id)}>Save</button>
-                <button onClick={handleCancelEdit}>Cancel</button>
-              </>
-            ) : (
-              <>
-                <a href={task.url} target="_blank" rel="noopener noreferrer">{task.title}</a>
-                <input type="checkbox" id={`task-${task.id}`} checked={task.completed} readOnly />
-                <button onClick={() => handleEditTask(task.id)}>Edit</button>
-                <button onClick={() => handleDeleteTask(task.id)}>Delete</button>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-      <input 
-        type="text" 
-        value={newTask} 
-        onChange={(e) => setNewTask(e.target.value)} 
-        placeholder="Add a new task..." 
-      />
-      <button onClick={handleAddTask}>Add Task</button>
+      <ul id="task-list"></ul>
+      <input id="task-input " type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="Add a new task..." />
+      <button id="add-task-btn" onClick={handleAddTask}>Add Task</button>
+      <div id="task-filters">
+        <button id="all-tasks-btn" onClick={() => handleTaskFilter('all')}>All Tasks</button>
+        <button id="active-tasks-btn" onClick={() => handleTaskFilter('active')}>Active Tasks</button>
+        <button id="completed-tasks-btn" onClick={() => handleTaskFilter('completed')}>Completed Tasks</button>
+      </div>
+      {editingTaskId && (
+        <button id="save-task-btn" onClick={() => handleSaveTask(editingTaskId)}>Save Task</button>
+      )}
     </div>
   );
 }
