@@ -19,18 +19,8 @@ function App() {
       const taskElement = document.createElement('li');
       taskElement.innerHTML = `
         <a href="${task.url}" target="_blank">${task.title}</a>
-        ${editingTaskId === task.id ? (
-          <input
-            type="text"
-            value={editedTaskTitle}
-            onChange={(e) => setEditedTaskTitle(e.target.value)}
-            placeholder="Edit task..."
-          />
-        ) : (
-          <span>${task.title}</span>
-        )}
         <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
-        <button class="edit-task" onClick={() => handleEditTask(task.id)}>Edit</button>
+        <button class="edit-task" data-task-id="${task.id}">Edit</button>
         <button class="delete-task" data-task-id="${task.id}">Delete</button>
       `;
       taskList.appendChild(taskElement);
@@ -43,7 +33,15 @@ function App() {
         handleDeleteTask(taskId);
       });
     });
-  }, [tasks, editingTaskId, editedTaskTitle]);
+
+    const editButtons = document.querySelectorAll('.edit-task');
+    editButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const taskId = button.getAttribute('data-task-id');
+        handleEditTask(taskId);
+      });
+    });
+  }, [tasks]);
 
   const handleAddTask = () => {
     if (newTask.trim() !== '') {
@@ -64,18 +62,8 @@ function App() {
       const taskElement = document.createElement('li');
       taskElement.innerHTML = `
         <a href="${task.url}" target="_blank">${task.title}</a>
-        ${editingTaskId === task.id ? (
-          <input
-            type="text"
-            value={editedTaskTitle}
-            onChange={(e) => setEditedTaskTitle(e.target.value)}
-            placeholder="Edit task..."
-          />
-        ) : (
-          <span>${task.title}</span>
-        )}
         <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
-        <button class="edit-task" onClick={() => handleEditTask(task.id)}>Edit</button>
+        <button class="edit-task" data-task-id="${task.id}">Edit</button>
         <button class="delete-task" data-task-id="${task.id}">Delete</button>
       `;
       taskList.appendChild(taskElement);
@@ -88,28 +76,37 @@ function App() {
         handleDeleteTask(taskId);
       });
     });
+
+    const editButtons = document.querySelectorAll('.edit-task');
+    editButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const taskId = button.getAttribute('data-task-id');
+        handleEditTask(taskId);
+      });
+    });
   };
 
-   
-  const handleSaveTask = (taskId) => {
-    const updatedTasks = tasks.map((task) => {
-      if (task.id === taskId) {
-        task.title = editedTaskTitle;
-      }
-      return task;
-    });
-    setTasks(updatedTasks);
-    setEditingTaskId(null);
-  };
   const handleDeleteTask = (taskId) => {
     setTasks(tasks.filter((task) => task.id !== parseInt(taskId)));
+  };
+
+  const handleEditTask = (taskId) => {
+    setEditingTaskId(taskId);
+  };
+
+  const handleSaveEditedTask = (taskId) => {
+    const editedTask = tasks.find((task) => task.id === parseInt(taskId));
+    editedTask.title = editedTaskTitle;
+    setTasks([...tasks]);
+    setEditingTaskId(null);
+    setEditedTaskTitle('');
   };
 
   return (
     <div>
       <h2>Tasks:</h2>
       <ul id="task-list"></ul>
-      <input id="task-input " type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="Add a new task..." />
+      <input id="task-input" type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder ="Add a new task..." />
       <button id="add-task-btn" onClick={handleAddTask}>Add Task</button>
       <div id="task-filters">
         <button id="all-tasks-btn" onClick={() => handleTaskFilter('all')}>All Tasks</button>
@@ -117,7 +114,15 @@ function App() {
         <button id="completed-tasks-btn" onClick={() => handleTaskFilter('completed')}>Completed Tasks</button>
       </div>
       {editingTaskId && (
-        <button id="save-task-btn" onClick={() => handleSaveTask(editingTaskId)}>Save Task</button>
+        <div>
+          <input
+            type="text"
+            value={editedTaskTitle}
+            onChange={(e) => setEditedTaskTitle(e.target.value)}
+            placeholder="Edit task title..."
+          />
+          <button onClick={() => handleSaveEditedTask(editingTaskId)}>Save</button>
+        </div>
       )}
     </div>
   );
